@@ -1,0 +1,10 @@
+{
+  "expo": {
+    "name": "HFl-client",
+    "slug": "HFl-client",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  }
+}
