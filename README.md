@@ -1,0 +1,13 @@
+# Client Set Up
+1. install node
+2. install npm
+3. clone this repo
+4. install dependencies with: 
+```
+npm i
+```
+5. start development with:
+```
+npm start
+```
+

@@ -1,16 +1,21 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
 import { Button, StyleSheet, Text, TextInput, View } from 'react-native';
+import { callApi } from './util';
 
 export default function App() {
   const [ip, setIp] = useState("")
   const [loading, setLoading] = useState(false)
-  const handleOnSubmit = (e) => {
+  const handleOnSubmit = async (e) => {
     try {
       setLoading(true)
-
-
-
+      console.log('sending request');
+      const response = await callApi({
+        url:"http://" + ip + ":3000/register/client",
+        token:'token',
+        method:"PUT"
+      })
+      console.log(response);
     
     } catch (error) {
       console.error(error);
