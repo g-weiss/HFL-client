@@ -52,3 +52,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
+//after the app is redunred:
+// start function to run a server on the device to recive the data and start training
+//server.js file to run the server on the device
+// res.send 
