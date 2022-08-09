@@ -1,4 +1,4 @@
-import { StatusBar } from 'expo-status-bar';
+
 import React, { useState } from 'react';
 import { Button, StyleSheet, Text, TextInput, View } from 'react-native';
 import { callApi } from './util';
@@ -28,10 +28,9 @@ export default function App() {
     <View style={styles.container}>
       <Text>Enter the address of the edge server you want to connect to</Text>
       <TextInput 
-      style={{outline:'1px solid', margin:'10px'}} 
       onChange={(e)=>setIp(e.nativeEvent.text)}
       value={ip}
-      placeholder="225.225.225.1:3000"
+      placeholder="225.225.225.1"
       keyboardType="numeric"
       ></TextInput>
       <Button 
@@ -41,7 +40,6 @@ export default function App() {
         // color="#841584"
         accessibilityLabel="Learn more about this purple button"
       />
-      <StatusBar style="auto" />
     </View>
   );
 }
@@ -49,7 +47,7 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ff',
+    backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
   },
