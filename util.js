@@ -1,3 +1,4 @@
+
 const callApi = async ({ url, method, token, body }) => {
     // console.log("callApi: ", { url, method, token, body });
     try {
@@ -16,14 +17,17 @@ const callApi = async ({ url, method, token, body }) => {
       const response = await fetch(`${url}`, options)
     //   const data = await response.json()
       // console.log("data: ", data)
+
     //   if (data.error) throw data.error
     //   return data
       return response
+
     } catch (error) {
       console.error("ERROR: ", error)
       return error
     }
-}
+
+  }
 
 export {
     callApi
