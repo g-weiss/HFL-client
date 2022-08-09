@@ -9,13 +9,13 @@ export default function App() {
   const handleOnSubmit = async (e) => {
     try {
       setLoading(true)
-      console.log('sending request');
+      // console.log('sending request');
       const response = await callApi({
         url:"http://" + ip + ":3000/register/client",
         token:'token',
         method:"PUT"
       })
-      console.log(response);
+      // console.log(response);
     
     } catch (error) {
       console.warn(error);
