@@ -26,6 +26,8 @@ export default function App() {
       console.warn(error);
     } finally{
       setLoading(false)
+      receiveData();
+      modelTrainingAndSend();
     }
   }
 
@@ -77,26 +79,26 @@ const styles = StyleSheet.create({
  * checks for usb connection since phone needs to be plugged in for us to be training data
  * returns true if plugged in and false if disconnected
  */
-function checkUSBConnect() {
-  var usbDetect = require('usb-detection'); // NOTE: USB-detection dependency causes error with fs since web does not have usb-detection
+// function checkUSBConnect() {
+//   var usbDetect = require('usb-detection'); // NOTE: USB-detection dependency causes error with fs since web does not have usb-detection
 
-  try {
-    usbDetect.startMonitoring();
-  } catch (error) {
-    console.warn(error)
-  } finally {
-    // displaying console message when device is added
-    usbDetect.on('add', function(device) {
-      console.log('usb has been plugged in', device); 
-      return true;
-    });
+//   try {
+//     usbDetect.startMonitoring();
+//   } catch (error) {
+//     console.warn(error)
+//   } finally {
+//     // displaying console message when device is added
+//     usbDetect.on('add', function(device) {
+//       console.log('usb has been plugged in', device); 
+//       return true;
+//     });
 
-    // if usb is removed/phone is not charging, stop training data and post error. need to change contents inside function(device)_
-    usbDetect.on('remove', function(device) {
-      console.log('usb has been removed, stop data training', device); 
-      return false});
-  }
-}
+//     // if usb is removed/phone is not charging, stop training data and post error. need to change contents inside function(device)_
+//     usbDetect.on('remove', function(device) {
+//       console.log('usb has been removed, stop data training', device); 
+//       return false});
+//   }
+// }
 
 /**
  * checkIdle()
@@ -115,9 +117,23 @@ function checkIdle() {
 
 
 function receiveData() {
-  //https://stackoverflow.com/questions/61755518/is-it-possible-to-have-a-node-js-websocket-client
+  //https://socket.io/docs/v4/
+  const sock = io(`http://${ip}:3000`, {extraHeaders : {"Authorization" : "Bearer token"}})
+  sock.on("receiving data from edge server", (training_data, model) => {
+    console.log("data received");
+  })
+
+  // while (checkIdle()) {
+    
+  // }
+
 }
 
-function modelTraining() {
-  
+function modelTrainingAndSend() {
+  // while(checkIdle()) {
+  //   // if model training is done
+    
+  // }
+  const sock = io(`http://${ip}:3000`, {extraHeaders : {"Authorization" : "Bearer token"}})
+  sock.emit("model training finished and data sent",);
 }
