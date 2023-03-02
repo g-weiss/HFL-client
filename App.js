@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Button, StyleSheet, Text, TextInput, View } from 'react-native';
 import { callApi } from './util';
+import { io } from 'socket.io-client'
 
 export default function App() {
   const [ip, setIp] = useState("")
@@ -10,11 +11,15 @@ export default function App() {
     try {
       setLoading(true)
       // console.log('sending request');
-      const response = await callApi({
-        url:"http://" + ip + ":3000/register/client",
-        token:'token',
-        method:"PUT"
+      const sock = io(`http://${ip}:3000`, {extraHeaders : {"Authorization" : "Bearer token"}})
+      sock.emit("register")
+      console.log('sending request');
+      sock.on('message', (type, msg) =>{
+        console.log(msg.msg)
       })
+      sock.onAny((event, ...args) =>{
+        console.log(event, args, "any");
+      });
       // console.log(response);
     
     } catch (error) {
