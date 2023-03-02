@@ -108,3 +108,11 @@ function checkIdle() {
   }
 }
 
+
+function receiveData() {
+  //https://stackoverflow.com/questions/61755518/is-it-possible-to-have-a-node-js-websocket-client
+}
+
+function modelTraining() {
+  
+}
