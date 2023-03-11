@@ -1,12 +1,13 @@
 
 import React, { useState } from 'react';
-import { Button, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Button, StyleSheet, Text, TextInput, TouchableWithoutFeedback, View } from 'react-native';
 import { callApi } from './util';
 import { io } from 'socket.io-client'
 
 export default function App() {
   const [ip, setIp] = useState("")
   const [loading, setLoading] = useState(false)
+  const isIdle = false;
   const handleOnSubmit = async (e) => {
     try {
       setLoading(true)
@@ -26,29 +27,45 @@ export default function App() {
       console.warn(error);
     } finally{
       setLoading(false)
-      receiveData();
-      modelTrainingAndSend();
+
+      alert('Connection established. Please leave phone plugged in and idle while training')
+      console.log('connection established');
+
+      //     //https://socket.io/docs/v4/
+
+      //     // sock.on("receiving data from edge server", (training_data, model) => {
+      //     //   console.log("data received");
+      //     // })
+
+      //     // startTime = performance.now()
+      //     // insert training code here
+      //     // endTime = performance.now()
+
+      //     // sock.emit("model training finished and data sent",);
     }
   }
 
   return (
-    <View style={styles.container}>
-      <Text>Enter the address of the edge server you want to connect to</Text>
-      <TextInput 
-      style={styles.input}
-      onChange={(e)=>setIp(e.nativeEvent.text)}
-      value={ip}
-      placeholder="225.225.225.1"
-      keyboardType="numeric"
-      ></TextInput>
-      <Button 
-      disabled={loading}
-        onPress={handleOnSubmit}
-        title="Submit"
-        // color="#841584"
-        accessibilityLabel="Learn more about this purple button"
-      />
-    </View>
+    <TouchableWithoutFeedback
+      onPress={() => {alert('Please leave phone idle while training')}}>
+        <View style={styles.container}>
+        <Text>Enter the address of the edge server you want to connect to</Text>
+        <TextInput 
+        style={styles.input}
+        onChange={(e)=>setIp(e.nativeEvent.text)}
+        value={ip}
+        placeholder="225.225.225.1"
+        keyboardType="numeric"
+        ></TextInput>
+        <Button 
+        disabled={loading}
+          onPress={handleOnSubmit}
+          title="Submit"
+          // color="#841584"
+          accessibilityLabel="Learn more about this purple button"
+        />
+      </View>
+  </TouchableWithoutFeedback>
   );
 }
 
@@ -100,40 +117,4 @@ const styles = StyleSheet.create({
 //   }
 // }
 
-/**
- * checkIdle()
- * function keeps track of inactivity, and stops training if activity is detected
- * returns false if activity detected
- */
-  
-function checkIdle() {
-  if(document.onmousemove || document.onkeydown || document.ontouchmove) {
-    console.log("activity detected")
-    return false;
-  } else {
-    return true;
-  }
-}
 
-
-function receiveData() {
-  //https://socket.io/docs/v4/
-  const sock = io(`http://${ip}:3000`, {extraHeaders : {"Authorization" : "Bearer token"}})
-  sock.on("receiving data from edge server", (training_data, model) => {
-    console.log("data received");
-  })
-
-  // while (checkIdle()) {
-    
-  // }
-
-}
-
-function modelTrainingAndSend() {
-  // while(checkIdle()) {
-  //   // if model training is done
-    
-  // }
-  const sock = io(`http://${ip}:3000`, {extraHeaders : {"Authorization" : "Bearer token"}})
-  sock.emit("model training finished and data sent",);
-}
