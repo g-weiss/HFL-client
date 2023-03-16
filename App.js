@@ -8,11 +8,11 @@ export default function App() {
   const [ip, setIp] = useState("")
   const [loading, setLoading] = useState(false)
   const isIdle = false;
+  const sock = io(`http://${ip}:3000`, {extraHeaders : {"Authorization" : "Bearer token"}})
   const handleOnSubmit = async (e) => {
     try {
       setLoading(true)
       // console.log('sending request');
-      const sock = io(`http://${ip}:3000`, {extraHeaders : {"Authorization" : "Bearer token"}})
       sock.emit("register")
       console.log('sending request');
       sock.on('message', (type, msg) =>{
@@ -29,25 +29,24 @@ export default function App() {
       setLoading(false)
 
       alert('Connection established. Please leave phone plugged in and idle while training')
-      console.log('connection established');
 
-      //     //https://socket.io/docs/v4/
+          //https://socket.io/docs/v4/
 
-      //     // sock.on("receiving data from edge server", (training_data, model) => {
-      //     //   console.log("data received");
-      //     // })
+      sock.on("message", () => {
+        console.log("Client-Edge Server connection established");
+      })
 
-      //     // startTime = performance.now()
-      //     // insert training code here
-      //     // endTime = performance.now()
+          // startTime = performance.now()
+          // insert training code here
+          // endTime = performance.now()
 
-      //     // sock.emit("model training finished and data sent",);
+      //sock.emit("model training finished and data sent",);
     }
   }
 
   return (
     <TouchableWithoutFeedback
-      onPress={() => {alert('Please leave phone idle while training')}}>
+      onPress={() => {sock.disconnect()}}>
         <View style={styles.container}>
         <Text>Enter the address of the edge server you want to connect to</Text>
         <TextInput 
@@ -88,33 +87,5 @@ const styles = StyleSheet.create({
 // start function to run a server on the device to recive the data and start training
 //server.js file to run the server on the device
 // res.send 
-
-// timing can be done in the function to train data
-
-/**
- * checkUSBConnect()
- * checks for usb connection since phone needs to be plugged in for us to be training data
- * returns true if plugged in and false if disconnected
- */
-// function checkUSBConnect() {
-//   var usbDetect = require('usb-detection'); // NOTE: USB-detection dependency causes error with fs since web does not have usb-detection
-
-//   try {
-//     usbDetect.startMonitoring();
-//   } catch (error) {
-//     console.warn(error)
-//   } finally {
-//     // displaying console message when device is added
-//     usbDetect.on('add', function(device) {
-//       console.log('usb has been plugged in', device); 
-//       return true;
-//     });
-
-//     // if usb is removed/phone is not charging, stop training data and post error. need to change contents inside function(device)_
-//     usbDetect.on('remove', function(device) {
-//       console.log('usb has been removed, stop data training', device); 
-//       return false});
-//   }
-// }
 
 
