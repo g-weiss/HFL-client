@@ -30,9 +30,10 @@ export default function App() {
 
       alert('Connection established. Please leave phone plugged in and idle while training')
 
-          //https://socket.io/docs/v4/
+          //https://socket.io/docs/v4/emitting-events
 
-      sock.on("message", () => {
+      // whatever tag is used in server to send model/data needs to be same and replace message
+      sock.on('message', () => {
         console.log("Client-Edge Server connection established");
       })
 
