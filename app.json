@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "my-app",
-    "slug": "my-app",
+    "name": "Mines-HFL-Train",
+    "slug": "Mines-HFL-Train",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
