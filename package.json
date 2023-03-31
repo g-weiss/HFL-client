@@ -10,20 +10,19 @@
     "eject": "expo eject"
   },
   "dependencies": {
-    "expo": "~45.0.0",
-    "expo-splash-screen": "~0.15.1",
-    "expo-status-bar": "~1.3.0",
+    "expo": "^48.0.0",
+    "expo-splash-screen": "~0.18.1",
+    "expo-status-bar": "~1.4.4",
     "path": "^0.12.7",
-    "react": "17.0.2",
-    "react-dom": "17.0.2",
-    "react-native": "0.68.2",
-    "react-native-web": "0.17.7",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-native": "0.71.3",
+    "react-native-web": "~0.18.11",
     "socket.io-client": "^4.6.1",
-    "usb": "^2.8.3",
-    "usb-detection": "^4.14.1"
+    "usb": "^2.9.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.12.9"
+    "@babel/core": "^7.20.0"
   },
   "private": true
 }
