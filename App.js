@@ -4,14 +4,14 @@ import { AppState } from 'react-native';
 import { Button, StyleSheet, Text, TextInput, TouchableWithoutFeedback, View } from 'react-native';
 import { callApi } from './util';
 import { io } from 'socket.io-client';
-//import { usb } from 'usb';
+// import { usb } from 'usb';
 
 export default function App() {
   const [ip, setIp] = useState("")
   const [loading, setLoading] = useState(false)
   const appState = useRef(AppState.currentState);
   const isIdle = false;
-  const sock = io(`http://${ip}:3000`, {extraHeaders : {"Authorization" : "Bearer token"}})
+  const sock = io(`http://${ip}:3000`, {extraHeaders : {"Authorization" : "Bearer token"}, transports: ['websocket']})
   const handleOnSubmit = async (e) => {
     try {
       setLoading(true)
@@ -31,14 +31,19 @@ export default function App() {
     } finally{
       setLoading(false)
 
-      alert('Connection established. Please leave phone plugged in and idle while training')
-
+      
+        // use expo start
           //https://socket.io/docs/v4/emitting-events
 
       // whatever tag is used in server to send model/data needs to be same and replace message
       sock.on('message', () => {
+        alert('Connection established. Please leave phone plugged in and idle while training')
         console.log("Client-Edge Server connection established");
       })
+
+      sock.on("connect_error", (err) => {
+        console.log(`connect_error due to ${err.message}`);
+      });
 
       // while training
       
