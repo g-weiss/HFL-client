@@ -1,12 +1,15 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
+import { AppState } from 'react-native';
 import { Button, StyleSheet, Text, TextInput, TouchableWithoutFeedback, View } from 'react-native';
 import { callApi } from './util';
-import { io } from 'socket.io-client'
+import { io } from 'socket.io-client';
+//import { usb } from 'usb';
 
 export default function App() {
   const [ip, setIp] = useState("")
   const [loading, setLoading] = useState(false)
+  const appState = useRef(AppState.currentState);
   const isIdle = false;
   const sock = io(`http://${ip}:3000`, {extraHeaders : {"Authorization" : "Bearer token"}})
   const handleOnSubmit = async (e) => {
@@ -37,6 +40,19 @@ export default function App() {
         console.log("Client-Edge Server connection established");
       })
 
+      // while training
+      
+      if(appState.current.match(/inactive|background/)) {
+        console.log(appState.current)
+        sock.disconnect();
+      }
+
+
+
+      // usb.on('detach', function(device) {
+      //   sock.disconnect()
+      // })
+
           // startTime = performance.now()
           // insert training code here
           // endTime = performance.now()
@@ -46,26 +62,23 @@ export default function App() {
   }
 
   return (
-    <TouchableWithoutFeedback
-      onPress={() => {sock.disconnect()}}>
-        <View style={styles.container}>
-        <Text>Enter the address of the edge server you want to connect to</Text>
-        <TextInput 
-        style={styles.input}
-        onChange={(e)=>setIp(e.nativeEvent.text)}
-        value={ip}
-        placeholder="225.225.225.1"
-        keyboardType="numeric"
-        ></TextInput>
-        <Button 
-        disabled={loading}
-          onPress={handleOnSubmit}
-          title="Submit"
-          // color="#841584"
-          accessibilityLabel="Learn more about this purple button"
-        />
-      </View>
-  </TouchableWithoutFeedback>
+    <View style={styles.container}>
+      <Text>Enter the address of the edge server you want to connect to</Text>
+      <TextInput 
+      style={styles.input}
+      onChange={(e)=>setIp(e.nativeEvent.text)}
+      value={ip}
+      placeholder="225.225.225.1"
+      keyboardType="numeric"
+      ></TextInput>
+      <Button 
+      disabled={loading}
+        onPress={handleOnSubmit}
+        title="Submit"
+        // color="#841584"
+        accessibilityLabel="Learn more about this purple button"
+      />
+    </View>
   );
 }
 
