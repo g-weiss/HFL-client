@@ -15,7 +15,6 @@ export default function App() {
   useEffect(() => {
     const appStateListen = AppState.addEventListener('change', nextAppState => {
         if(nextAppState != 'active') {
-          console.log("Activity detected, disconnecting client");
           sock.disconnect();
         }
       })
