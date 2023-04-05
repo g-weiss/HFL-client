@@ -1,5 +1,5 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { AppState } from 'react-native';
 import { Button, StyleSheet, Text, TextInput, TouchableWithoutFeedback, View } from 'react-native';
 import { callApi } from './util';
@@ -10,8 +10,17 @@ export default function App() {
   const [ip, setIp] = useState("")
   const [loading, setLoading] = useState(false)
   const appState = useRef(AppState.currentState);
-  const isIdle = false;
   const sock = io(`http://${ip}:3000`, {extraHeaders : {"Authorization" : "Bearer token"}, transports: ['websocket']})
+
+  useEffect(() => {
+    const appStateListen = AppState.addEventListener('change', nextAppState => {
+        if(nextAppState != 'active') {
+          console.log("Activity detected, disconnecting client");
+          sock.disconnect();
+        }
+      })
+  })
+
   const handleOnSubmit = async (e) => {
     try {
       setLoading(true)
@@ -45,12 +54,8 @@ export default function App() {
         console.log(`connect_error due to ${err.message}`);
       });
 
-      // while training
       
-      if(appState.current.match(/inactive|background/)) {
-        console.log(appState.current)
-        sock.disconnect();
-      }
+         
 
 
 
