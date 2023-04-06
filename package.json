@@ -10,6 +10,7 @@
     "eject": "expo eject"
   },
   "dependencies": {
+    "@tensorflow/tfjs": "^4.2.0",
     "expo": "^48.0.0",
     "expo-splash-screen": "~0.18.1",
     "expo-status-bar": "~1.4.4",
@@ -19,7 +20,8 @@
     "react-native": "0.71.6",
     "react-native-web": "~0.18.11",
     "socket.io-client": "^4.6.1",
-    "usb": "^2.9.0"
+    "usb": "^2.9.0",
+    "@expo/webpack-config": "^18.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"

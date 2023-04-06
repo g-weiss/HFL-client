@@ -4,35 +4,116 @@ import { AppState } from 'react-native';
 import { Button, StyleSheet, Text, TextInput, TouchableWithoutFeedback, View } from 'react-native';
 import { callApi } from './util';
 import { io } from 'socket.io-client';
+import * as tf from '@tensorflow/tfjs';
 // import { usb } from 'usb';
+const token = "token";
+
+const custFetch = async (url) => {
+  const out = await fetch(url, {
+    method: 'GET',
+    headers: {'Authorization': `Bearer ${token}`}
+  });
+  return out;
+}
+
+const createSock = async (ip, setLoading) => {
+  const socket = io(`ws://${ip}:3001`, {extraHeaders : {"Authorization" : "Bearer token"}});
+  socket.on("connect", () =>{
+    setLoading(true);
+    console.log("connection established");
+  });
+  socket.on('message', () => {
+    alert('Connection established. Please leave phone plugged in and idle while training')
+    console.log("Client-Edge Server connection established");
+  })
+
+  socket.on("connect_error", (err) => {
+    console.log(`connect_error due to ${err.message}`);
+  });
+
+  socket.on('disconnect', () =>{
+    setLoading(false);
+    console.log("disconnected message");
+  });
+  socket.on('download', async (message) =>{
+    console.log("Received model from Edge Server!");
+    const TFRequest = {fetchFunc: custFetch};
+    const model = await tf.loadLayersModel(message.model, TFRequest);
+    const trainEpochs = message.iterations;
+    const data = new MnistData();
+    await data.load(message.data.start, message.data.size);
+    const {trImages, trLabels} = data.getTrainData();
+
+    console.log("Begin client training!");
+    await model.compile({
+        optimizer: 'adam',
+        loss: 'categoricalCrossentropy',
+        metrics: ['accuracy'],
+    });
+    await model.fit(trImages, trLabels, {
+        epochs: trainEpochs,
+        callbacks: {
+            onEpochEnd: async (epoch, logs) => {
+                console.log(`  Epoch ${epoch+1}/${trainEpochs}`);
+            }
+        }
+    });
+    console.log("End client training!");
+    let weights = [];
+    let shape = [];
+    for (let i = 0; i < model.getWeights().length; i++) {
+        weights.push(await model.getWeights()[i].data());
+        shape.push(weights[i].length);
+    }
+    let weightsT = new Float32Array(shape.reduce((a, b) => a + b, 0));
+    let ind = 0;
+    for (let i = 0; i < shape.length; i++){
+        weightsT.set(weights[i], ind);
+        ind += shape[i];
+    }
+    const shapeT = new Uint32Array(shape);
+    const weightBlob = new Blob([new Uint8Array(weightsT.buffer)]);
+    const form = new FormData();
+    form.append('weights', weightBlob);
+    form.append('shape', new Blob([new Uint8Array(shapeT.buffer)]));
+    form.append('sid', socket.id);
+    let xhr = new XMLHttpRequest();
+    xhr.open("POST", message.callback, true);
+    xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+    xhr.send(form);
+    console.log("Trained Model Uploaded to Edge Server!");
+});
+}
 
 export default function App() {
   const [ip, setIp] = useState("")
   const [loading, setLoading] = useState(false)
   const appState = useRef(AppState.currentState);
-  const sock = io(`http://${ip}:3000`, {extraHeaders : {"Authorization" : "Bearer token"}, transports: ['websocket']})
+  
 
+  //console.log(loading);
   useEffect(() => {
     const appStateListen = AppState.addEventListener('change', nextAppState => {
-        if(nextAppState != 'active') {
-          sock.disconnect();
-        }
+        /*if(nextAppState != 'active') {
+          socket.disconnect();
+          console.log("client disconnected - app left")
+        }*/
       })
   })
 
   const handleOnSubmit = async (e) => {
     try {
-      setLoading(true)
+      // // console.log('sending request');
+      // socket.emit("register")
       // console.log('sending request');
-      sock.emit("register")
-      console.log('sending request');
-      sock.on('message', (type, msg) =>{
-        console.log(msg.msg)
-      })
-      sock.onAny((event, ...args) =>{
-        console.log(event, args, "any");
-      });
-      // console.log(response);
+      // socket.on('message', (type, msg) =>{
+      //   console.log(msg.msg)
+      // })
+      // socket.onAny((event, ...args) =>{
+      //   console.log(event, args, "any");
+      // });
+      // // console.log(response);
+      createSock(ip, setLoading);
     
     } catch (error) {
       console.warn(error);
@@ -44,29 +125,21 @@ export default function App() {
           //https://socket.io/docs/v4/emitting-events
 
       // whatever tag is used in server to send model/data needs to be same and replace message
-      sock.on('message', () => {
-        alert('Connection established. Please leave phone plugged in and idle while training')
-        console.log("Client-Edge Server connection established");
-      })
-
-      sock.on("connect_error", (err) => {
-        console.log(`connect_error due to ${err.message}`);
-      });
-
+     
       
          
 
 
 
       // usb.on('detach', function(device) {
-      //   sock.disconnect()
+      //   socket.disconnect()
       // })
 
           // startTime = performance.now()
           // insert training code here
           // endTime = performance.now()
 
-      //sock.emit("model training finished and data sent",);
+      //socket.emit("model training finished and data sent",);
     }
   }
 
@@ -75,12 +148,11 @@ export default function App() {
       <Text>Enter the address of the edge server you want to connect to</Text>
       <TextInput 
       style={styles.input}
-      onChange={(e)=>setIp(e.nativeEvent.text)}
-      value={ip}
+      onChange={e=>setIp(e.nativeEvent.text)}
       placeholder="225.225.225.1"
       keyboardType="numeric"
       ></TextInput>
-      <Button 
+      <Button
       disabled={loading}
         onPress={handleOnSubmit}
         title="Submit"
