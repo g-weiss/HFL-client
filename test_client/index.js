@@ -6,7 +6,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, "static")));
 
 const port = 2999;
-const host = "172.20.10.2";
+const host = "138.67.78.3";
 
 app.get('/', async (req, res) => {
     res.sendFile(path.join(__dirname, "index.html"));
