@@ -35,6 +35,7 @@ const createSock = async (ip, setLoading) => {
     setLoading(false);
     console.log("disconnected message");
   });
+
   socket.on('download', async (message) =>{
     console.log("Received model from Edge Server!");
     const TFRequest = {fetchFunc: custFetch};
@@ -45,6 +46,8 @@ const createSock = async (ip, setLoading) => {
     const {trImages, trLabels} = data.getTrainData();
 
     console.log("Begin client training!");
+    const startTime = performance.now()
+
     await model.compile({
         optimizer: 'adam',
         loss: 'categoricalCrossentropy',
@@ -58,29 +61,39 @@ const createSock = async (ip, setLoading) => {
             }
         }
     });
+
+    const endTime = performance.now()
     console.log("End client training!");
+
     let weights = [];
     let shape = [];
+    let trainingTime = endTime - startTime;
     for (let i = 0; i < model.getWeights().length; i++) {
         weights.push(await model.getWeights()[i].data());
         shape.push(weights[i].length);
     }
+
     let weightsT = new Float32Array(shape.reduce((a, b) => a + b, 0));
     let ind = 0;
     for (let i = 0; i < shape.length; i++){
         weightsT.set(weights[i], ind);
         ind += shape[i];
     }
+
     const shapeT = new Uint32Array(shape);
     const weightBlob = new Blob([new Uint8Array(weightsT.buffer)]);
     const form = new FormData();
+
     form.append('weights', weightBlob);
     form.append('shape', new Blob([new Uint8Array(shapeT.buffer)]));
     form.append('sid', socket.id);
+    form.append('training time', trainingTime);
+
     let xhr = new XMLHttpRequest();
     xhr.open("POST", message.callback, true);
     xhr.setRequestHeader('Authorization', `Bearer ${token}`);
     xhr.send(form);
+
     console.log("Trained Model Uploaded to Edge Server!");
 });
 }
@@ -90,8 +103,6 @@ export default function App() {
   const [loading, setLoading] = useState(false)
   const appState = useRef(AppState.currentState);
   
-
-  //console.log(loading);
   useEffect(() => {
     const appStateListen = AppState.addEventListener('change', nextAppState => {
         /*if(nextAppState != 'active') {
@@ -103,18 +114,7 @@ export default function App() {
 
   const handleOnSubmit = async (e) => {
     try {
-      // // console.log('sending request');
-      // socket.emit("register")
-      // console.log('sending request');
-      // socket.on('message', (type, msg) =>{
-      //   console.log(msg.msg)
-      // })
-      // socket.onAny((event, ...args) =>{
-      //   console.log(event, args, "any");
-      // });
-      // // console.log(response);
       createSock(ip, setLoading);
-    
     } catch (error) {
       console.warn(error);
     } finally{
@@ -126,15 +126,6 @@ export default function App() {
 
       // whatever tag is used in server to send model/data needs to be same and replace message
      
-      
-         
-
-
-
-      // usb.on('detach', function(device) {
-      //   socket.disconnect()
-      // })
-
           // startTime = performance.now()
           // insert training code here
           // endTime = performance.now()
