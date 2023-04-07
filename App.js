@@ -46,7 +46,7 @@ const createSock = async (ip, setLoading) => {
     const {trImages, trLabels} = data.getTrainData();
 
     console.log("Begin client training!");
-    const startTime = performance.now()
+    const startTime = performance.now() // start training time
 
     await model.compile({
         optimizer: 'adam',
@@ -62,7 +62,7 @@ const createSock = async (ip, setLoading) => {
         }
     });
 
-    const endTime = performance.now()
+    const endTime = performance.now() // end training time
     console.log("End client training!");
 
     let weights = [];
@@ -104,12 +104,12 @@ export default function App() {
   const appState = useRef(AppState.currentState);
   
   useEffect(() => {
-    const appStateListen = AppState.addEventListener('change', nextAppState => {
-        /*if(nextAppState != 'active') {
-          socket.disconnect();
-          console.log("client disconnected - app left")
-        }*/
-      })
+    // const appStateListen = AppState.addEventListener('change', nextAppState => {
+    //     if(nextAppState != 'active') {
+    //       socket.disconnect();
+    //       console.log("client disconnected - app left")
+    //     }
+    //   })
   })
 
   const handleOnSubmit = async (e) => {
